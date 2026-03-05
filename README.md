@@ -1,59 +1,182 @@
-# Sorteio
+# Amigo Secreto Seguro
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
+Aplicação web completa para gerir um sorteio de Amigo Secreto de Natal, com foco em segurança e encriptação. Permite gerir participantes, realizar o sorteio de forma encriptada e que cada pessoa descubra apenas o seu amigo secreto através de uma chave única.
 
-## Development server
+## Funcionalidades
 
-To start a local development server, run:
+- **Gestão de Participantes**: Listar, adicionar, editar, ativar/desativar e apagar participantes
+- **Sorteio Automático**: Gerar emparelhamento válido (ninguém fica consigo próprio, mínimo 3 participantes)
+- **Resultados Encriptados**: O emparelhamento é guardado encriptado na base de dados
+- **Consulta por Chave**: Cada participante introduz a sua chave para descobrir apenas o seu amigo secreto
 
-```bash
-ng serve
-```
+## Tecnologias
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Frontend**: Angular 21
+- **Backend**: Node.js + Express
+- **Base de Dados**: MySQL
+- **Encriptação**: AES-256-GCM (módulo crypto do Node.js)
 
-## Code scaffolding
+## Instalação
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Pré-requisitos
 
-```bash
-ng generate component component-name
-```
+- Node.js 18+
+- npm
+- MySQL 5.7+ ou 8+
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+### 1. Instalar dependências
 
 ```bash
-ng build
+# Na raiz do projeto
+npm install
+
+# No servidor
+cd server
+npm install
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 2. Configurar o servidor
 
 ```bash
-ng test
+cd server
+npm run setup
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+Isto cria o ficheiro `.env` com uma chave de encriptação gerada automaticamente. Para produção, gere uma chave manualmente:
 
 ```bash
-ng e2e
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+E coloque no `.env`. Configure também as variáveis MySQL:
 
-## Additional Resources
+```
+ENCRYPTION_KEY=sua_chave_hex_64_caracteres
+PORT=3000
+CORS_ORIGIN=http://localhost:4200
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=sua_password
+MYSQL_DATABASE=amigo_secreto
+```
+
+### 3. Inicializar a base de dados
+
+Certifique-se de que o MySQL está a correr. A base de dados `amigo_secreto` e as tabelas são criadas automaticamente ao iniciar o servidor. Para criar manualmente:
+
+```bash
+cd server
+npm run init-db
+```
+
+## Como Correr o Projeto
+
+### Opção A: Terminal único (recomendado para desenvolvimento)
+
+```bash
+npm run dev
+```
+
+Isto inicia o servidor (porta 3000) e o frontend Angular (porta 4200) em paralelo.
+
+### Opção B: Dois terminais
+
+**Terminal 1 - Servidor:**
+
+```bash
+npm run server
+```
+
+**Terminal 2 - Frontend:**
+
+```bash
+npm start
+```
+
+### Acesso
+
+- **Frontend**: http://localhost:4200
+- **API**: http://localhost:3000/api
+- **Área de administração**: http://localhost:4200/admin
+- **Consulta do amigo secreto**: http://localhost:4200/consulta
+
+## Área de Administração
+
+Em `/admin` pode:
+
+1. **Participantes** (rota padrão): Adicionar, editar, ativar/desativar e apagar participantes. Apenas participantes ativos entram no sorteio.
+2. **Sorteio**: Clicar em "Gerar Sorteio" quando houver pelo menos 3 participantes ativos. Após o sorteio, são apresentadas as chaves para distribuir a cada participante.
+
+## Abordagem de Encriptação
+
+- **Algoritmo**: AES-256-GCM (encriptação autenticada)
+- **Chave**: 32 bytes (256 bits) gerados aleatoriamente, guardados em variável de ambiente
+- **Armazenamento**: Na tabela `participante_sorteio`, o campo `resultado_encriptado` guarda apenas o ID do amigo secreto encriptado (não o nome em texto claro)
+- **Formato encriptado**: `iv:authTag:ciphertext` em base64 (IV e auth tag únicos por registo)
+- **Tokens de consulta**: Cada participante recebe um token de 32 bytes em hexadecimal (64 caracteres), gerado com `crypto.randomBytes`, impossível de adivinhar
+
+O emparelhamento completo nunca é desencriptado em conjunto; cada consulta desencripta apenas o resultado de um único participante após validação do token.
+
+## Estrutura do Projeto
+
+```
+sorteio/
+├── server/                 # Backend API
+│   ├── db/
+│   │   ├── database.js     # Conexão MySQL
+│   │   ├── 001_initial.sql # Schema da base de dados
+│   │   └── init.js
+│   ├── routes/
+│   │   ├── participantes.js
+│   │   ├── sorteio.js
+│   │   └── consulta.js
+│   ├── services/
+│   │   ├── encryption.js   # AES-256-GCM
+│   │   └── sorteio-logic.js
+│   ├── index.js
+│   ├── setup.js
+│   └── .env.example
+├── src/
+│   └── app/
+│       ├── admin/          # Área de administração
+│       ├── consulta/       # Página pública de consulta
+│       ├── home/
+│       └── services/
+├── proxy.conf.json         # Proxy API em desenvolvimento
+└── README.md
+```
+
+## Scripts Disponíveis
+
+| Comando              | Descrição                              |
+| -------------------- | -------------------------------------- |
+| `npm start`          | Inicia o frontend Angular              |
+| `npm run dev`        | Inicia servidor + frontend em paralelo |
+| `npm run server`     | Inicia apenas o backend                |
+| `npm run server:dev` | Backend em modo watch                  |
+| `npm run build`      | Build de produção do frontend          |
+
+## Acesso à Base de Dados
+
+O MySQL pode ser acedido com qualquer cliente (MySQL Workbench, DBeaver, phpMyAdmin, etc.) ou via linha de comandos:
+
+```bash
+mysql -u root -p amigo_secreto
+```
+
+Tabelas: `participantes`, `sorteios`, `participante_sorteio`
+
+## Produção
+
+Para deploy em produção:
+
+1. Configure `ENCRYPTION_KEY`, `CORS_ORIGIN` e variáveis `MYSQL_*` no servidor
+2. Faça build do frontend: `npm run build`
+3. Sirva os ficheiros de `dist/sorteio/browser/` (ou configure o servidor para o fazer)
+4. Ou utilize um servidor web (nginx, etc.) como reverse proxy para a API
+
+## Licença
+
+Projeto académico.
