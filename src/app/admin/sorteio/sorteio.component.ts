@@ -101,6 +101,14 @@ import { ApiService, Participante, Sorteio, TokenSorteio } from '../../services/
                       {{ aInativar ? 'A desativar...' : 'Desativar' }}
                     </button>
                   }
+                  <button
+                    type="button"
+                    class="btn-remover"
+                    (click)="apagarSorteio(s)"
+                    [disabled]="aApagar"
+                  >
+                    {{ aApagar ? 'A remover...' : 'Remover' }}
+                  </button>
                 </div>
               </li>
             }
@@ -240,13 +248,30 @@ import { ApiService, Participante, Sorteio, TokenSorteio } from '../../services/
         opacity: 0.6;
         cursor: not-allowed;
       }
+      .btn-remover {
+        padding: 0.5rem 1rem;
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      .btn-remover:hover:not(:disabled) {
+        background: #b91c1c;
+      }
+      .btn-remover:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
       .historico {
         margin-top: 2rem;
         padding-top: 1.5rem;
         border-top: 1px solid #e5e7eb;
       }
       .historico h2 {
-        font-size: 1rem;
+        font-size: 1.15rem;
         font-weight: 600;
         margin-bottom: 1rem;
         color: #111827;
@@ -305,6 +330,7 @@ export class SorteioComponent implements OnInit {
   tokens: TokenSorteio[] = [];
   aGerar = false;
   aInativar = false;
+  aApagar = false;
   erro = '';
   sucesso = '';
   copiado = '';
@@ -380,6 +406,37 @@ export class SorteioComponent implements OnInit {
       },
       complete: () => {
         this.aInativar = false;
+      },
+    });
+  }
+
+  apagarSorteio(s: Sorteio) {
+    const confirmado = window.confirm(
+      `Tem a certeza que quer remover o sorteio de ${new Date(s.dataSorteio).toLocaleString()}?`
+    );
+    if (!confirmado) return;
+
+    this.aApagar = true;
+    this.erro = '';
+    this.sucesso = '';
+
+    this.api.apagarSorteio(s.id).subscribe({
+      next: () => {
+        if (s.estado === 'ativo') {
+          this.temSorteioAtivo = false;
+        }
+        this.sucesso = 'Sorteio removido com sucesso.';
+        this.carregar();
+        this.aApagar = false;
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.erro = e.error?.erro || 'Erro ao remover sorteio.';
+        this.aApagar = false;
+        this.cdr.detectChanges();
+      },
+      complete: () => {
+        this.aApagar = false;
       },
     });
   }

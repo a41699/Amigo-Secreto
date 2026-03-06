@@ -70,7 +70,8 @@ import { RouterLink } from '@angular/router';
 
       .home-title {
         margin-bottom: var(--spacing-md);
-        line-height: 1;
+        line-height: 1.08;
+        padding-bottom: 0.06em;
         font-size: clamp(2.4rem, 6vw, 4.2rem);
         background: linear-gradient(130deg, var(--primary), #c41f3a 45%, var(--secondary));
         -webkit-background-clip: text;

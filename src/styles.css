@@ -518,8 +518,8 @@ p {
 
   /* Landing Page Mobile */
   .hero {
-    min-height: 60vh;
-    padding: var(--spacing-xl) var(--spacing-lg);
+    min-height: 52vh;
+    padding: var(--spacing-lg) var(--spacing-lg);
   }
 
   .hero-title {
@@ -675,12 +675,12 @@ p {
 
 /* Hero Section */
 .hero {
-  min-height: 70vh;
+  min-height: 56vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: var(--spacing-xxl) var(--spacing-lg);
+  padding: var(--spacing-xl) var(--spacing-lg);
   text-align: center;
   overflow: hidden;
 }
@@ -786,13 +786,17 @@ p {
   font-size: 5rem;
   font-weight: 800;
   margin-bottom: var(--spacing-lg);
-  line-height: 0.9;
+  line-height: 1.1;
+  padding-bottom: 0.1em;
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   position: relative;
+  overflow: visible;
 }
 
 .title-main {
   display: block;
+  line-height: 1.12;
+  padding-bottom: 0.08em;
   background: linear-gradient(135deg, #8B0000 0%, #B22222 25%, #DC143C 50%, #FF4500 75%, #8B0000 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
@@ -809,6 +813,8 @@ p {
 
 .title-accent {
   display: block;
+  line-height: 1.12;
+  padding-bottom: 0.08em;
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -816,6 +822,10 @@ p {
   text-shadow: 0 2px 4px rgba(255, 215, 0, 0.5);
   font-size: 3rem;
   margin-top: 0.5rem;
+}
+
+.hero-content {
+  overflow: visible;
 }
 
 .hero-subtitle {
@@ -892,7 +902,7 @@ p {
 
 /* Main Section */
 .main-section {
-  padding: var(--spacing-xxl) 0;
+  padding: var(--spacing-lg) 0 var(--spacing-xxl);
   position: relative;
 }
 
@@ -941,7 +951,7 @@ p {
 }
 
 .card-header {
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-md);
   text-align: center;
   background: linear-gradient(135deg, rgba(248, 249, 250, 0.8) 0%, rgba(233, 236, 239, 0.8) 100%);
   border-bottom: 1px solid var(--border-light);
@@ -962,11 +972,15 @@ p {
 }
 
 .card-body {
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg) var(--spacing-xl);
 }
 
 .secret-form {
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.secret-form .form-group {
+  margin-bottom: var(--spacing-md);
 }
 
 .input-wrapper {
@@ -1235,7 +1249,7 @@ p {
 
 /* Card Footer */
 .card-footer {
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-xl);
   background: rgba(248, 249, 250, 0.5);
   border-top: 1px solid var(--border-light);
   text-align: center;

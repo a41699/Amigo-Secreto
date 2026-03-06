@@ -42,7 +42,7 @@ import { ApiService } from '../services/api.service';
             <div class="card-header">
               <h2 class="card-title">Descobrir Amigo Secreto</h2>
               <p class="card-subtitle">
-                Introduza a chave única que recebeu para revelar a sua missão secreta
+                Introduza a chave única que recebeu para revelar o seu amigo secreto.
               </p>
             </div>
 
@@ -56,7 +56,7 @@ import { ApiService } from '../services/api.service';
                       type="text"
                       [(ngModel)]="token"
                       name="token"
-                      placeholder="Digite sua chave aqui..."
+                      placeholder="Introduza a sua chave aqui..."
                       class="form-control form-control-lg"
                       autocomplete="off"
                     />

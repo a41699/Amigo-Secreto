@@ -141,4 +141,54 @@ router.patch('/:id/inativar', async (req, res) => {
   }
 });
 
+/**
+ * DELETE /api/sorteio/:id - Remove um sorteio e os respetivos registos associados
+ */
+router.delete('/:id', async (req, res) => {
+  let conn;
+  try {
+    const { id } = req.params;
+    const pool = getPool();
+    conn = await pool.getConnection();
+    await conn.beginTransaction();
+
+    const [sorteioRows] = await conn.execute('SELECT id FROM sorteios WHERE id = ? LIMIT 1', [id]);
+    if (!sorteioRows[0]) {
+      await conn.rollback();
+      return res.status(404).json({ erro: 'Sorteio não encontrado.' });
+    }
+
+    // Remove primeiro os registos dependentes para funcionar mesmo em BDs sem ON DELETE CASCADE.
+    try {
+      await conn.execute('DELETE FROM participante_sorteio WHERE sorteio_id = ?', [id]);
+    } catch (error) {
+      // Compatibilidade com schemas antigos que usavam camelCase.
+      if (error?.code !== 'ER_BAD_FIELD_ERROR') {
+        throw error;
+      }
+      await conn.execute('DELETE FROM participante_sorteio WHERE sorteioId = ?', [id]);
+    }
+
+    const [resultado] = await conn.execute('DELETE FROM sorteios WHERE id = ?', [id]);
+
+    if (resultado.affectedRows === 0) {
+      await conn.rollback();
+      return res.status(404).json({ erro: 'Sorteio não encontrado.' });
+    }
+
+    await conn.commit();
+    res.json({ mensagem: 'Sorteio removido com sucesso.' });
+  } catch (error) {
+    if (conn) {
+      try {
+        await conn.rollback();
+      } catch {}
+    }
+    console.error('Erro ao remover sorteio:', error);
+    res.status(500).json({ erro: 'Erro ao remover sorteio.' });
+  } finally {
+    if (conn) conn.release();
+  }
+});
+
 export default router;

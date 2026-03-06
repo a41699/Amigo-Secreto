@@ -12,17 +12,21 @@ import { ApiService, Participante } from '../../services/api.service';
       <h1>Gestão de Participantes</h1>
       <p class="subtitle">Participantes inativos não entram no sorteio.</p>
 
-      <form class="form-row" (ngSubmit)="adicionar()">
+      <form class="form-add" (ngSubmit)="adicionar()">
         <input
           type="text"
           [(ngModel)]="novoNome"
           name="novoNome"
           placeholder="Nome do participante"
           maxlength="100"
-          class="form-control"
+          class="form-control form-add-input"
           (keyup.enter)="adicionar()"
         />
-        <button type="submit" class="btn btn-primary" [disabled]="!(novoNome || '').trim() || aAdicionar">
+        <button
+          type="submit"
+          class="btn btn-primary form-add-button"
+          [disabled]="!(novoNome || '').trim() || aAdicionar"
+        >
           {{ aAdicionar ? 'A adicionar...' : 'Adicionar' }}
         </button>
       </form>
@@ -92,17 +96,21 @@ import { ApiService, Participante } from '../../services/api.service';
       }
       .form-add {
         display: flex;
-        gap: 0.5rem;
+        align-items: stretch;
+        gap: 0.75rem;
         margin-bottom: 1.5rem;
       }
-      .form-add input {
+      .form-add-input {
         flex: 1;
+        min-width: 0;
         padding: 0.75rem 1rem;
         border: 1px solid #ddd;
         border-radius: 8px;
         font-size: 1rem;
       }
-      .form-add button {
+      .form-add-button {
+        flex-shrink: 0;
+        min-width: 132px;
         padding: 0.75rem 1.25rem;
         background: var(--accent, #e94560);
         color: white;
@@ -114,6 +122,14 @@ import { ApiService, Participante } from '../../services/api.service';
       .form-add button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+      }
+      @media (max-width: 768px) {
+        .form-add {
+          flex-direction: column;
+        }
+        .form-add-button {
+          width: 100%;
+        }
       }
       .msg {
         padding: 1rem;
@@ -214,7 +230,7 @@ export class ParticipantesComponent implements OnInit {
   ngOnInit() {
     this.carregar();
   }
-
+      
   carregar() {
     this.api.getParticipantes().subscribe({
       next: (lista) => {

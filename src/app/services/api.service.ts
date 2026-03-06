@@ -93,6 +93,12 @@ export class ApiService {
       .pipe(timeout(this.requestTimeoutMs));
   }
 
+  apagarSorteio(id: string): Observable<{ mensagem: string }> {
+    return this.http
+      .delete<{ mensagem: string }>(`${this.baseUrl}/sorteio/${id}`)
+      .pipe(timeout(this.requestTimeoutMs));
+  }
+
   // Consulta pública
   consultarAmigoSecreto(token: string): Observable<{ amigoSecreto: string }> {
     return this.http
