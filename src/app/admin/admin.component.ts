@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { RouterModule, RouterOutlet } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-admin',
@@ -13,6 +14,12 @@ import { RouterModule, RouterOutlet } from '@angular/router';
             Participantes
           </a>
           <a routerLink="/admin/sorteio" routerLinkActive="active" class="admin-nav-link">Sorteio</a>
+        </div>
+        <div class="admin-user-actions">
+          @if (adminNome) {
+            <span class="admin-user">{{ adminNome }}</span>
+          }
+          <button type="button" class="admin-logout" (click)="logout()">Sair</button>
         </div>
       </nav>
       <main class="admin-content">
@@ -31,7 +38,9 @@ import { RouterModule, RouterOutlet } from '@angular/router';
         background: var(--nav-bg, #1a1a2e);
         padding: 1rem 2rem;
         display: flex;
-        gap: 1.5rem;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       }
       .admin-nav a {
@@ -56,7 +65,39 @@ import { RouterModule, RouterOutlet } from '@angular/router';
         margin: 0 auto;
         width: 100%;
       }
+      .admin-user-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .admin-user {
+        color: #d1d5db;
+        font-size: 0.9rem;
+      }
+      .admin-logout {
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: transparent;
+        color: #fff;
+        border-radius: 6px;
+        padding: 0.4rem 0.75rem;
+        cursor: pointer;
+      }
+      .admin-logout:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
     `,
   ],
 })
-export class AdminComponent {}
+export class AdminComponent {
+  adminNome = '';
+
+  constructor(private auth: AuthService, private router: Router) {
+    const admin = this.auth.getAdminUser();
+    this.adminNome = admin?.nome || admin?.username || '';
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigateByUrl('/admin/login');
+  }
+}

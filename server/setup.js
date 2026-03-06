@@ -17,10 +17,15 @@ if (existsSync(envPath)) {
 }
 
 const key = crypto.randomBytes(32).toString('hex');
+const adminAuthSecret = crypto.randomBytes(32).toString('hex');
 const envContent = `# Gerado automaticamente por setup.js
 ENCRYPTION_KEY=${key}
+ADMIN_AUTH_SECRET=${adminAuthSecret}
 PORT=3000
 CORS_ORIGIN=http://localhost:4200
+ADMIN_USER=admin
+ADMIN_PASSWORD=admin123
+ADMIN_NAME=Administrador
 
 # MySQL - ajuste conforme o seu ambiente
 MYSQL_HOST=localhost

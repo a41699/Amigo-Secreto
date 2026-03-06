@@ -4,6 +4,8 @@ import { initDatabase } from './db/database.js';
 import participantesRouter from './routes/participantes.js';
 import sorteioRouter from './routes/sorteio.js';
 import consultaRouter from './routes/consulta.js';
+import authRouter from './routes/auth.js';
+import { requireAdmin } from './middleware/require-admin.js';
 
 const PORT = process.env.PORT || 3000;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:4200';
@@ -27,8 +29,9 @@ const app = express();
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
 
-app.use('/api/participantes', participantesRouter);
-app.use('/api/sorteio', sorteioRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/participantes', requireAdmin, participantesRouter);
+app.use('/api/sorteio', requireAdmin, sorteioRouter);
 app.use('/api/consulta', consultaRouter);
 
 app.get('/api/health', (req, res) => {

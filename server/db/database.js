@@ -2,10 +2,34 @@ import mysql from 'mysql2/promise';
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { hashPassword } from '../services/admin-auth.js';
+import { generateId } from '../services/encryption.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let pool = null;
+
+async function ensureDefaultAdmin(poolRef) {
+  const [rows] = await poolRef.execute('SELECT id FROM admins LIMIT 1');
+  if (rows.length > 0) return;
+
+  const username = (process.env.ADMIN_USER || 'admin').trim();
+  const password = process.env.ADMIN_PASSWORD || 'admin123';
+  const nome = process.env.ADMIN_NAME || 'Administrador';
+  const agora = new Date().toISOString();
+  const { salt, hash } = hashPassword(password);
+
+  await poolRef.execute(
+    `INSERT INTO admins (id, username, nome, password_salt, password_hash, ativo, data_criacao, data_atualizacao)
+     VALUES (?, ?, ?, ?, ?, 1, ?, ?)`,
+    [generateId(), username, nome, salt, hash, agora, agora]
+  );
+
+  console.log(`Admin inicial criado: utilizador "${username}"`);
+  if (!process.env.ADMIN_PASSWORD) {
+    console.log('Password inicial: "admin123". Altere ADMIN_PASSWORD no .env em produção.');
+  }
+}
 
 function getConfig() {
   return {
@@ -57,6 +81,8 @@ export async function initDatabase() {
       await pool.execute(statement);
     }
   }
+
+  await ensureDefaultAdmin(pool);
 
   return pool;
 }

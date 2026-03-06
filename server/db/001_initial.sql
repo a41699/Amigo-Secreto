@@ -10,6 +10,20 @@ CREATE TABLE IF NOT EXISTS participantes (
   INDEX idx_participantes_ativo (ativo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Administradores (acesso ao painel /admin)
+CREATE TABLE IF NOT EXISTS admins (
+  id VARCHAR(32) PRIMARY KEY,
+  username VARCHAR(80) NOT NULL UNIQUE,
+  nome VARCHAR(120) NOT NULL,
+  password_salt VARCHAR(64) NOT NULL,
+  password_hash VARCHAR(128) NOT NULL,
+  ativo TINYINT NOT NULL DEFAULT 1,
+  data_criacao VARCHAR(30) NOT NULL,
+  data_atualizacao VARCHAR(30) NOT NULL,
+  INDEX idx_admins_username (username),
+  INDEX idx_admins_ativo (ativo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Sorteios realizados
 CREATE TABLE IF NOT EXISTS sorteios (
   id VARCHAR(32) PRIMARY KEY,

@@ -8,6 +8,7 @@ Aplicação web completa para gerir um sorteio de Amigo Secreto de Natal, com fo
 - **Sorteio Automático**: Gerar emparelhamento válido (ninguém fica consigo próprio, mínimo 3 participantes)
 - **Resultados Encriptados**: O emparelhamento é guardado encriptado na base de dados
 - **Consulta por Chave**: Cada participante introduz a sua chave para descobrir apenas o seu amigo secreto
+- **Login de Administração**: Área `/admin` protegida por autenticação (utilizador + password)
 
 ## Tecnologias
 
@@ -52,8 +53,12 @@ E coloque no `.env`. Configure também as variáveis MySQL:
 
 ```
 ENCRYPTION_KEY=sua_chave_hex_64_caracteres
+ADMIN_AUTH_SECRET=outra_chave_hex_64_caracteres
 PORT=3000
 CORS_ORIGIN=http://localhost:4200
+ADMIN_USER=admin
+ADMIN_PASSWORD=admin123
+ADMIN_NAME=Administrador
 
 MYSQL_HOST=localhost
 MYSQL_PORT=3306
@@ -99,12 +104,19 @@ npm start
 
 - **Frontend**: http://localhost:4200
 - **API**: http://localhost:3000/api
-- **Área de administração**: http://localhost:4200/admin
+- **Login admin**: http://localhost:4200/admin/login
+- **Área de administração** (protegida): http://localhost:4200/admin
 - **Consulta do amigo secreto**: http://localhost:4200/consulta
+
+Credenciais iniciais por defeito:
+- Utilizador: `admin`
+- Password: `admin123`
+
+Estas credenciais são criadas automaticamente no primeiro arranque se a tabela `admins` estiver vazia. Recomenda-se alterar `ADMIN_PASSWORD` no `.env`.
 
 ## Área de Administração
 
-Em `/admin` pode:
+Em `/admin` (após login) pode:
 
 1. **Participantes** (rota padrão): Adicionar, editar, ativar/desativar e apagar participantes. Apenas participantes ativos entram no sorteio.
 2. **Sorteio**: Clicar em "Gerar Sorteio" quando houver pelo menos 3 participantes ativos. Após o sorteio, são apresentadas as chaves para distribuir a cada participante.
@@ -129,12 +141,16 @@ sorteio/
 │   │   ├── 001_initial.sql # Schema da base de dados
 │   │   └── init.js
 │   ├── routes/
+│   │   ├── auth.js
 │   │   ├── participantes.js
 │   │   ├── sorteio.js
 │   │   └── consulta.js
 │   ├── services/
+│   │   ├── admin-auth.js
 │   │   ├── encryption.js   # AES-256-GCM
 │   │   └── sorteio-logic.js
+│   ├── middleware/
+│   │   └── require-admin.js
 │   ├── index.js
 │   ├── setup.js
 │   └── .env.example
@@ -167,6 +183,18 @@ mysql -u root -p amigo_secreto
 ```
 
 Tabelas: `participantes`, `sorteios`, `participante_sorteio`
+
+Com autenticação admin, existe também:
+
+- `admins`:
+  - `id`
+  - `username`
+  - `nome`
+  - `password_salt`
+  - `password_hash`
+  - `ativo`
+  - `data_criacao`
+  - `data_atualizacao`
 
 ## Produção
 
